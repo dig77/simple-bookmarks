@@ -9,7 +9,7 @@ const toggler = () => {
     overlay.classList.toggle('visible');
 };
 
-const addBookmark = (bookmark,id) => {
+const addBookmark = (bookmark, id) => {
     let html = `
         <li class="mt-4" data-id="${id}">
             <div class="card shadow-sm">
@@ -32,23 +32,25 @@ const addBookmark = (bookmark,id) => {
 const deleteBookmark = id => {
     const bookmarks = document.querySelectorAll('li');
     bookmarks.forEach(bookmark => {
-        if(bookmark.getAttribute('data-id') === id) {
+        if (bookmark.getAttribute('data-id') === id) {
             bookmark.remove();
         }
     })
 };
 
 // get data from database
-db.collection('bookmarks').onSnapshot(snapshot => {
-    snapshot.docChanges().forEach(change => {
-        const doc = change.doc;
-        if(change.type === 'added') {
-            addBookmark(doc.data(),doc.id);
-        } else if(change.type === 'removed') {
-            deleteBookmark(doc.id);
-        }
-    }) 
-});
+db.collection('bookmarks')
+    .orderBy('created_at','desc')
+    .onSnapshot(snapshot => {
+        snapshot.docChanges().forEach(change => {
+            const doc = change.doc;
+            if (change.type === 'added') {
+                addBookmark(doc.data(), doc.id);
+            } else if (change.type === 'removed') {
+                deleteBookmark(doc.id);
+            }
+        })
+    });
 
 sparks.forEach(spark => {
     spark.addEventListener('click', () => {
@@ -71,7 +73,7 @@ form.addEventListener('submit', e => {
         created_at: firebase.firestore.Timestamp.fromDate(now)
     };
 
-    db.collection('bookmarks').add(bookmark).then(()=> {
+    db.collection('bookmarks').add(bookmark).then(() => {
         console.log('bookmark added');
     }).catch(err => {
         console.log(err);
@@ -83,11 +85,11 @@ form.addEventListener('submit', e => {
 
 // delete data
 list.addEventListener('click', e => {
-// console.log("🚀 ~ file: scripts.js ~ line 86 ~ e", e.target)
-    
-    if(e.target.tagName === 'BUTTON') {
+    // console.log("🚀 ~ file: scripts.js ~ line 86 ~ e", e.target)
+
+    if (e.target.tagName === 'BUTTON') {
         const id = e.target.parentElement.parentElement.parentElement.parentElement.getAttribute('data-id');
-        db.collection('bookmarks').doc(id).delete().then(()=> {
+        db.collection('bookmarks').doc(id).delete().then(() => {
             console.log('bookmark deleted');
         }).catch(err => {
             console.log(err);
